@@ -22,21 +22,25 @@ package org.amahi.anywhere.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.l4digital.fastscroll.FastScroller;
 
 import org.amahi.anywhere.server.client.ServerClient;
 import org.amahi.anywhere.server.model.ServerFile;
 import org.amahi.anywhere.server.model.ServerShare;
+import org.amahi.anywhere.util.Constants;
 import org.amahi.anywhere.util.Downloader;
 import org.amahi.anywhere.util.Mimes;
+import org.amahi.anywhere.util.Preferences;
 import org.amahi.anywhere.util.ServerFileClickListener;
 
 import java.io.File;
@@ -48,7 +52,7 @@ import java.util.List;
  * for the {@link ServerFilesAdapter}
  * and the {@link ServerFilesMetadataAdapter}.
  */
-public abstract class FilesFilterAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
+public abstract class FilesFilterAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable, FastScroller.SectionIndexer {
 
     static final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.parseColor("#be5e00"));
     static String queryString;
@@ -108,6 +112,11 @@ public abstract class FilesFilterAdapter extends RecyclerView.Adapter<RecyclerVi
         return filesFilter;
     }
 
+    @Override
+    public CharSequence getSectionText(int selectedPosition) {
+        return getItem(selectedPosition).getName().subSequence(0, 1);
+    }
+
     public List<ServerFile> getItems() {
         return files;
     }
@@ -123,7 +132,7 @@ public abstract class FilesFilterAdapter extends RecyclerView.Adapter<RecyclerVi
                 .into(fileIconView);
         } else {
             Glide.with(fileIconView.getContext())
-                .load(getImageUri(file))
+                .load(getImageUri(fileIconView.getContext(), file))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
                 .placeholder(Mimes.getFileIcon(file))
@@ -135,7 +144,10 @@ public abstract class FilesFilterAdapter extends RecyclerView.Adapter<RecyclerVi
         return new File(context.getFilesDir() + "/" + Downloader.OFFLINE_PATH + "/" + name);
     }
 
-    private Uri getImageUri(ServerFile file) {
+    private Uri getImageUri(Context context, ServerFile file) {
+        if(!Preferences.getServerName(context).equals(Constants.welcomeToAmahi)) {
+            return serverClient.getFileThumbnailUri(serverShare, file);
+        }
         return serverClient.getFileUri(serverShare, file);
     }
 

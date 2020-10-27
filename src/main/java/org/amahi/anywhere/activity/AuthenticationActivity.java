@@ -22,12 +22,8 @@ package org.amahi.anywhere.activity;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-
-import com.google.android.material.textfield.TextInputLayout;
-
-import androidx.appcompat.app.AppCompatDelegate;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
@@ -36,7 +32,10 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatDelegate;
+
 import com.dd.processbutton.iml.ActionProcessButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.squareup.otto.Subscribe;
 
 import org.amahi.anywhere.AmahiApplication;
@@ -48,6 +47,7 @@ import org.amahi.anywhere.bus.AuthenticationFailedEvent;
 import org.amahi.anywhere.bus.AuthenticationSucceedEvent;
 import org.amahi.anywhere.bus.BusProvider;
 import org.amahi.anywhere.server.client.AmahiClient;
+import org.amahi.anywhere.util.LocaleHelper;
 import org.amahi.anywhere.util.ViewDirector;
 
 import javax.inject.Inject;
@@ -73,6 +73,7 @@ public class AuthenticationActivity extends AccountAuthenticatorAppCompatActivit
         setUpInjections();
 
         setUpAuthentication();
+
     }
 
     private void setUpInjections() {
@@ -193,7 +194,7 @@ public class AuthenticationActivity extends AccountAuthenticatorAppCompatActivit
     }
 
     private void authenticate() {
-        amahiClient.authenticate(getUsername(), getPassword());
+        amahiClient.authenticate(getUsername().trim(), getPassword());
     }
 
     @Subscribe
@@ -277,5 +278,10 @@ public class AuthenticationActivity extends AccountAuthenticatorAppCompatActivit
     @Override
     public void onBackPressed() {
         finishAffinity();
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.onAttach(newBase));
     }
 }

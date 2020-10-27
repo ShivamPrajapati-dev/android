@@ -19,22 +19,24 @@
 
 package org.amahi.anywhere.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
 import com.squareup.otto.Subscribe;
 
@@ -56,6 +58,7 @@ import org.amahi.anywhere.util.Android;
 import org.amahi.anywhere.util.CheckTV;
 import org.amahi.anywhere.util.Fragments;
 import org.amahi.anywhere.util.Intents;
+import org.amahi.anywhere.util.LocaleHelper;
 import org.amahi.anywhere.util.Preferences;
 
 import javax.inject.Inject;
@@ -147,7 +150,7 @@ public class NavigationActivity extends AppCompatActivity implements DrawerLayou
     }
 
     private void hideActionBar() {
-        getSupportActionBar().hide();
+        if (getSupportActionBar() != null) getSupportActionBar().hide();
     }
 
     private void setUpInjections() {
@@ -173,10 +176,11 @@ public class NavigationActivity extends AppCompatActivity implements DrawerLayou
         if (!CheckTV.isATV(this)) setUpNavigationFragment();
 
         if (isNavigationDrawerAvailable() && isNavigationDrawerRequired(state)) {
-            showNavigationDrawer();
+            this.navigationTitle = getString(R.string.title_shares);
+            setUpTitle();
+            setUpShares();
         }
 
-        setUpNavigationTitle(state);
     }
 
     private void setUpNavigationDrawer() {
@@ -222,14 +226,6 @@ public class NavigationActivity extends AppCompatActivity implements DrawerLayou
     @Override
     public void onDrawerStateChanged(int state) {
         navigationDrawerToggle.onDrawerStateChanged(state);
-    }
-
-    private void setUpNavigationTitle(Bundle state) {
-        this.navigationTitle = getNavigationTitle(state);
-
-        if (isNavigationDrawerAvailable() && !isNavigationDrawerOpen()) {
-            setUpTitle();
-        }
     }
 
     private String getNavigationTitle(Bundle state) {
@@ -450,5 +446,10 @@ public class NavigationActivity extends AppCompatActivity implements DrawerLayou
 
         private State() {
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.onAttach(newBase));
     }
 }

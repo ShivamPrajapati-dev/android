@@ -27,27 +27,26 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.crashlytics.android.Crashlytics;
-
 import org.amahi.anywhere.job.NetConnectivityJob;
 import org.amahi.anywhere.job.PhotosContentJob;
+import org.amahi.anywhere.util.AmahiLifeCycleCallback;
 
 import dagger.ObjectGraph;
-import io.fabric.sdk.android.Fabric;
-import timber.log.Timber;
 
 /**
  * Application declaration. Basically sets things up at the startup time,
  * such as dependency injection, logging, crash reporting and possible ANR detecting.
  */
+
 public class AmahiApplication extends Application {
     private ObjectGraph injector;
 
-    private static final String UPLOAD_CHANNEL_ID = "file_upload";
-    private static final String DOWNLOAD_CHANNEL_ID = "file_download";
+    public static final String UPLOAD_CHANNEL_ID = "file_upload";
+    public static final String DOWNLOAD_CHANNEL_ID = "file_download";
 
     private Boolean isLightThemeEnabled = false;
     private static AmahiApplication instance = null;
@@ -66,9 +65,10 @@ public class AmahiApplication extends Application {
         super.onCreate();
 
         instance = this;
-        setUpLogging();
-        setUpReporting();
+
         setUpDetecting();
+
+        setUpActivityCallbacks();
 
         setUpInjections();
 
@@ -78,12 +78,6 @@ public class AmahiApplication extends Application {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             setUpJobs();
-        }
-    }
-
-    private void setUpLogging() {
-        if (isDebugging()) {
-            Timber.plant(new Timber.DebugTree());
         }
     }
 
@@ -111,15 +105,15 @@ public class AmahiApplication extends Application {
         return BuildConfig.DEBUG;
     }
 
-    private void setUpReporting() {
-        if (!isDebugging()) {
-            Fabric.with(this, new Crashlytics());
-        }
-    }
-
     private void setUpDetecting() {
         if (isDebugging()) {
             StrictMode.enableDefaults();
+        }
+    }
+
+    private void setUpActivityCallbacks() {
+        if (isDebugging()) {
+            registerActivityLifecycleCallbacks(new AmahiLifeCycleCallback());
         }
     }
 
@@ -150,19 +144,18 @@ public class AmahiApplication extends Application {
     private void createNotificationChannel() {
 
         // Creating NotificationChannel only for API 26+
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        int importanceDownload = NotificationManager.IMPORTANCE_LOW;
+        int importanceUpload = NotificationManager.IMPORTANCE_LOW;
 
-        NotificationChannel uploadChannel = new NotificationChannel(UPLOAD_CHANNEL_ID, getString(R.string.upload_channel), importance);
+        NotificationChannel uploadChannel = new NotificationChannel(UPLOAD_CHANNEL_ID, getString(R.string.upload_channel), importanceUpload);
         uploadChannel.setDescription(getString(R.string.upload_channel_desc));
 
-        NotificationChannel downloadChannel = new NotificationChannel(DOWNLOAD_CHANNEL_ID, getString(R.string.download_channel), importance);
+        NotificationChannel downloadChannel = new NotificationChannel(DOWNLOAD_CHANNEL_ID, getString(R.string.download_channel), importanceDownload);
         downloadChannel.setDescription(getString(R.string.download_channel_desc));
 
         // Once the channel is registered, it's importance and behaviour can't be changed
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(uploadChannel);
         notificationManager.createNotificationChannel(downloadChannel);
-
     }
-
 }

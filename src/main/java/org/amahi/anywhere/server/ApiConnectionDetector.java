@@ -20,8 +20,10 @@
 package org.amahi.anywhere.server;
 
 import android.net.Uri;
+import android.util.Log;
 
 import org.amahi.anywhere.server.model.ServerRoute;
+import org.amahi.anywhere.util.Constants;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,13 +32,15 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import timber.log.Timber;
 
 /**
  * API connection guesser. Tries to connect to the server address to determine if it is available
  * and returns it if succeed or another one otherwise.
  */
 public class ApiConnectionDetector {
+
+    public static final String TAG = ApiConnectionDetector.class.getSimpleName();
+
     private OkHttpClient httpClient;
 
     public ApiConnectionDetector() {
@@ -51,7 +55,7 @@ public class ApiConnectionDetector {
     }
 
     public String detect(ServerRoute serverRoute) {
-        Timber.tag("CONNECTION");
+        Log.d(TAG, Constants.connection);
 
         try {
             Request httpRequest = new Request.Builder()
@@ -64,18 +68,18 @@ public class ApiConnectionDetector {
 
             httpResponse.body().close();
 
-            Timber.d("Using local address.");
+            Log.d(TAG, "Using local address.");
 
             return serverRoute.getLocalAddress();
         } catch (IOException e) {
-            Timber.d("Using remote address.");
+            Log.d(TAG, "Using remote address.");
 
             return serverRoute.getRemoteAddress();
         }
     }
 
     private URL getConnectionUrl(String serverAddress) throws IOException {
-        return new URL(Uri.parse(serverAddress).buildUpon().appendPath("shares").build().toString());
+        return new URL(Uri.parse(serverAddress).buildUpon().appendPath(Constants.sharesPathAppendLoc).build().toString());
     }
 
     private static final class Connection {

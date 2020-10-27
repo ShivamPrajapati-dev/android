@@ -19,7 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
     package="org.amahi.anywhere"
-    android:installLocation="auto">
+    android:installLocation="auto"
+    tools:ignore="MissingLeanbackLauncher">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
@@ -55,7 +56,8 @@
         android:resizeableActivity="true"
         android:theme="@style/Theme.Amahi"
         android:usesCleartextTraffic="true"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:icon">
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="org.amahi.anywhere.fileprovider"
@@ -68,13 +70,7 @@
 
         <activity
             android:name=".tv.activity.MainTVActivity"
-            android:theme="@style/Theme.Leanback.Browse">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.Leanback.Browse" />
         <activity
             android:name=".activity.SplashActivity"
             android:theme="@style/SplashTheme">
@@ -110,7 +106,7 @@
         <activity
             android:name=".activity.ExpandedControlsActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:theme="@style/Theme.CastVideosDark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -123,7 +119,8 @@
         <activity android:name=".activity.ServerFileWebActivity" />
         <activity
             android:name=".activity.SettingsActivity"
-            android:label="@string/title_settings" />
+            android:label="@string/title_settings"
+            android:theme="@style/Theme.Amahi.Settings"/>
         <activity
             android:name=".activity.IntroductionActivity"
             android:label="@string/intro_desc_phone_1"
@@ -177,7 +174,6 @@
             android:enabled="true">
             <intent-filter>
 
-                <!-- <action android:name="com.android.camera.NEW_PICTURE" /> -->
                 <action android:name="android.hardware.action.NEW_PICTURE" />
 
                 <data android:mimeType="image/*" />
@@ -222,7 +218,7 @@
             android:value="org.amahi.anywhere.util.CastOptionsProvider" />
 
         <activity android:name=".activity.OfflineFilesActivity" />
-        <activity android:name=".activity.RecentFilesActivity"></activity>
+        <activity android:name=".activity.RecentFilesActivity" />
     </application>
 
 </manifest>

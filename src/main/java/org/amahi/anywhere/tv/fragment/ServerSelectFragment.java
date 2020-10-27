@@ -76,7 +76,7 @@ public class ServerSelectFragment extends GuidedStepFragment {
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
         super.onCreateActions(actions, savedInstanceState);
         mSharedPref = Preferences.getPreference(mContext);
-        mServerArrayList = getActivity().getIntent().getParcelableArrayListExtra(getString(R.string.intent_servers));
+        mServerArrayList = getActivity().getIntent().getParcelableArrayListExtra("INTENT_SERVERS");
 
         setTitle(actions);
         populateData();
@@ -134,9 +134,6 @@ public class ServerSelectFragment extends GuidedStepFragment {
 
     private void setFalseChecked() {
         if (OPTION_CHECKED != null) {
-            setFalse();
-        } else {
-            OPTION_CHECKED.clear();
             setFalse();
         }
     }
